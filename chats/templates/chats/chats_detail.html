@@ -1,0 +1,54 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="ms-5 justify-content-center align-content-center">
+        <h2>Job Title : {{job.job_title}}</h2>
+        <textarea name="" id="message-log" cols="120" rows="20">
+            {% for chat in chats %}
+    {{chat.member}} - {{chat.content}}
+            {% endfor %}
+        </textarea><br>
+        <input type="text"  id="input-message" size="117"><br>
+        <input type="button" value="Send" class="btn btn-outline-success" id="send-message" >
+    </div>
+
+    <!-- {{user.username|json_script:'user-name'}} -->
+    {{job.id|json_script:'job-id'}}
+    <script>
+        const jobId = JSON.parse(document.getElementById('job-id').textContent)
+        // const userName = JSON.parse(document.getElementById('user-name').textContent)
+
+        let ws = new WebSocket('ws://' + window.location.host + '/ws/awsc/' + jobId + '/')  
+
+        ws.onopen = function(){
+            console.log("Websocket connectionn Established....")
+        }
+        ws.onmessage = function(event){
+            console.log("Message received from server....", event.data)
+            let inputMessage = document.getElementById('message-log')
+            inputMessage.value += event.data + '\n' + '\n'
+
+        }
+        ws.onerror = function(event){
+            console.log('Error occurred...', event)
+        }
+        ws.onclose = function(){
+            console.log("Websocket Connection closed Successfully...")
+        }
+
+
+
+
+        let message = document.getElementById('input-message')
+        let sendbtn = document.getElementById('send-message')
+        sendbtn.onclick = function(){
+            // console.log(message.value)
+            ws.send(message.value)
+            // console.log(jobTitle, 'type is : ', typeof(jobTitle))
+            message.value = ''
+        }
+
+
+
+    </script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<h1>Applied People</h1><br><hr><br>
+{% for obj in object_list %}
+{% if obj.job.id == jobs_id %}
+        <div class="col-md-4 ">
+            <div id="remove-accept{{obj.id}}" class="row g-0 border rounded overflow-hidden flex-md-row mb-0 shadow h-md-250 position-relative">
+                <div class="col p-4  d-flex align-items-center justify-content-center flex-column position-static">
+                    <img class="rounded-circle" src="{{ obj.user.profile.image.url }}" width="60" height="60" >
+                    <h3>
+                        <strong class="d-inline-block mb-2 mt-3 text-success">{{ obj.user}}</strong>
+                    </h3>
+                    <span class="bg-light ">
+                        <a href="{% url 'profile' obj.user %}" class="text-dark">View Profile</a>
+                    </span>    
+                    <!-- <h3 class="mb-0">{{ obj.job.job_title}}</h3> -->
+                </div>
+                <button id="join-accept-btn" onclick="acceptRequest('{{obj.user.id}}', '{{obj.job.id}}', 'remove-accept{{obj.id}}')" class="btn btn-outline-success">Accept</button>
+                <button id="join-accept-btn" onclick="removeRequest('{{obj.user.id}}', '{{obj.job.id}}','remove-accept{{obj.id}}')" class="btn btn-outline-danger mt-1">Decline</button>
+            </div>
+        </div> 
+            
+            {% endif %}
+            {% endfor %}
+
+
+    <script>
+        function removeRequest(userId, jobId,removeAccept){
+            
+            fetch(`/jobs/applied-user/${jobId}/`,{
+                method:'POST',
+                headers:{
+                    'Content-type': 'application/Json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body:JSON.stringify({'userId':userId,'jobId':jobId,'status':'remove'})
+            })
+            .then(response =>{
+                if (response.ok){
+                    console.log("Successfully send request to Decline...")
+                    const removebtn = document.getElementById(removeAccept)
+                    removebtn.remove()
+                }
+                else{
+                    alert("Failed to Send Request");
+                    console.log('Failed to send decline Request...',response.status)
+                }
+            })
+            .catch(error =>{
+                console.log("Error Occured while sending decline Reqest...",error)
+            })
+        }
+
+
+
+
+        function acceptRequest(userId, jobId, removeElement){
+            console.log('user Id is ',userId)
+            console.log('job Id is',jobId)
+            fetch(`/jobs/applied-user/${jobId}/`,{
+                method:'POST',
+                headers:{
+                    'Content-type': 'application/Json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body:JSON.stringify({'userId':userId,'jobId':jobId,'status':'accept'})
+            })
+            .then(response =>{
+                if (response.ok){
+                    console.log("Successfully send request to Accept...")
+                    const removeAccept = document.getElementById(removeElement)
+                    if (removeAccept){
+                        removeAccept.remove()
+                    }
+                }
+                else{
+                    alert("Failed to Send Request");
+                    console.log('Failed to send accept Request...',response.status)
+                }
+            })
+            .catch(error =>{
+                console.log("Error Occured while sending Accept Reqest...",error)
+            })
+        }
+
+        function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+    </script>
+{% endblock %}

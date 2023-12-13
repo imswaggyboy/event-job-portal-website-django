@@ -1,0 +1,100 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+
+<article class="media content-section  ">
+    <div class="media-body ">
+      <div class="article-metadata  ">
+        <img class="rounded-circle article-img" src="{{ object.recruiter.profile.image.url }}">
+        <a class="mr-2" href="{% url 'profile' object.recruiter %}">{{ object.recruiter }}</a>
+        {% comment %} <small class="text-muted">{{ .publish|date:"F d, Y" }}</small> {% endcomment %}
+        {% if object.recruiter == user %}
+            <a class="btn btn-secondary btn-sm ms-3 mt-1 mb-1" href="{{object.get_absolute_url}}update">Update</a>
+            <a class="btn btn-danger btn-sm mt-1 ms-lg-2 mb-1 " href="{{object.get_absolute_url}}delete/">Delete</a>
+            <a class="btn btn-outline-primary btn-sm mt-1 ms-3 mb-1 p-2 " href="{% url 'applied-user' object.id%}">View Applied User</a>
+        {% elif user.profile.user_type == 'E' %}
+            <button class="btn btn-primary btn-sm ms-3 mt-1 mb-1 px-lg-4 " id="job-apply" onclick="submitApplication('{{request.user.id}}','{{object.id}}')">Apply</button>
+        {% endif %}
+      </div>
+      <div class="mt-3">
+        {% comment %} <span id="likes-count-{{ object.id }}">{{ object.people_applied }}</span> Likes {% endcomment %}
+      </div>
+      <div class=" text-dark m-20">
+        
+        <h1>{{ object.job_title }}</h1>
+        <p class="article-content"><strong>Job Type : </strong>{{ object.job_type}}</p>
+        <span style="font-weight-bold">
+            <p class="article-content"><strong>Location: </strong>{{ object.location}}</p>
+            <p class="font-weight-bold"><strong>Pay/day : </strong>{{ object.pay_per_day}}</p>
+        </span>
+        <p class="article-content"><strong>Gender Preference: </strong>{{ custom_gender_preference}}</p>
+        <p class="article-content"><strong>Event Date: </strong>{{ object.date_of_event}}</p>
+        <p class="article-content"><strong>Event Timing : </strong>{{ object.start_time}} to {{ object.end_time}}</p>
+        <p class="article-content"><strong>Age Requirement: </strong>{{ object.age_limit}}</p>
+        <p class="article-content"><strong>Duration : </strong>{{ object.duration_of_event}} (in Days)</p>
+        <p class="article-content"><strong>Shift: </strong>{{ custom_shift}}</p>
+        <p class="article-content"><strong>Dress Code: </strong>{{ custom_dress_code }}</p>
+        {% comment %} <p class="article-content"><strong>Whatsapp Link: </strong>{{ object.whatsapp_link}}</p> {% endcomment %}
+      </div>
+      <hr class='bold-hr'>
+      <h6>Description:</h6>
+      <p class="article-content">{{ object.description}}</p>
+    </div>
+    <hr class='bold-hr'>
+  </article>
+
+  
+  <script>
+    function submitApplication(userId, jobId){
+      console.log('User ID is :', userId)
+      console.log('job ID is :', jobId)
+      fetch(`/jobs/${jobId}/`,{  
+        method:'POST',
+        headers:{
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body:JSON.stringify({ user: userId, job: jobId}) 
+      })
+      .then(response =>{
+        if(response.ok){
+          console.log("Application Submitted Successfully!....")
+          const btn = document.getElementById('job-apply')
+          btn.style.backgroundColor = "green"
+          btn.innerText = 'Applied'
+        }
+
+        else{
+          console.log("Error occurred while applying...",response.status)
+        }
+
+      })
+      .catch(error =>{
+        console.log("An error occured in fetching the data from server..",error);
+      })
+
+    }
+
+
+    // Function to get the value of a specific cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+  </script>
+{% endblock %}
+
+<style>
+    .article-content {
+      font-weight:400;
+    }
+
+  .comments-list .media{
+      border-bottom: 1px dotted #ccc;
+  }
+
+  </style> 

@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}My Blog{% endblock %}
+
+{% block content %}
+    <div class="align-self-center ">
+        {% for obj in object_list %}
+        <div class="col-md-10 ">
+        <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow  h-md-250 position-relative">
+            <div class="col p-4 d-flex flex-column position-static">
+            <img class="rounded-circle" src="{{ obj.recruiter.profile.image.url }}" width="40" height="40" >
+            <strong class="d-inline-block mb-2 text-success">{{ obj.recruiter}}</strong>
+            <h3 class="mb-0">{{ obj.job_title}}</h3>
+            <div class="mb-1 text-muted">{{ post.publish|date:"d F Y"}}</div>
+            <p class="mb-auto p-2"><strong>Location: </strong>{{ obj.location}}</p>
+             <p class="mb-auto p-2"><strong>Job Type: </strong>{{ obj.job_type}}</p>
+            
+            <p class="mb-auto text-dark p-2"><strong>Pay/Day: </strong>{{ obj.pay_per_day}}</p>
+            <p class="mb-auto text-muted p-2">{{ obj.description|truncatewords:12}}</p>
+            <a href="{{ obj.get_absolute_url}}" class="stretched-link">Continue reading</a>
+            </div>
+            <div class="col-auto d-none d-lg-block img-fluid rounded-start mt-4 mb-4" >
+            </div>
+        </div>
+        </div>
+        {% endfor %}
+        {% include 'pagination.html' with page=page_obj %}
+    </div>
+  {% endblock %}

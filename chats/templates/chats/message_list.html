@@ -1,0 +1,24 @@
+{% extends 'blog/base.html' %}
+{% block content%}
+
+<h1>Messages</h1><br><hr><br>
+    {% for group in chat_groups %}
+    <div class="col-md-10  justify-content-center">
+        <div  class="row g-0 border rounded overflow-hidden flex-md-row mb-0 shadow  h-md-250 position-relative">
+            <div class="col p-4  d-flex align-items-center justify-content-center flex-column position-static">
+                <h3>
+                    <strong class="d-inline-block mb-2 mt-3 text-success">{{ group.group}}</strong>
+                </h3>
+                <small class="text-muted">{{group.group.recruiter}}</small>
+                    <a href="{% url 'chats' group.group.id %}" class=" bg-light text-dark stretched-link">View Message</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+
+
+
+
+
+{% endblock %}
